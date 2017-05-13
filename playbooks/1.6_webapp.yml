@@ -101,7 +101,7 @@
         port: "{{nginx_listen_port}}"
         timeout: 10
 
-    - name: Ensure that is listening
+    - name: Ensure that the proxy is functioning
       uri:
         url: http://localhost:{{nginx_listen_port}}
         return_content: yes
