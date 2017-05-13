@@ -1,0 +1,117 @@
+# This is a 'list of tasks' playbook that deploys a 'hello world' web
+# application written in Flask. Several tasks have been filled in
+# for you, but others are incomplete. Fill in the remainder of the
+# tasks and make sure that you can run the playbook:
+
+#   ansible-playbook playbooks/1.6_webapp.yml
+
+# If you get stuck, you can check out 1.8_webapp.yml for a completed
+# version of this script.
+
+- name: Deploy a web application
+  hosts: localhost
+
+  # Values you're using in more than one place are best off
+  # treated as variables. Playbooks are one of the many
+  # locations you can define variables.
+  vars:
+    deploy_directory: /home/vagrant/apps    
+    nginx_listen_port: 80
+    nginx_upstream_port: 5000
+  tasks:
+    # Flask is a Python web server, installed as a
+    # Python package.
+    - name: Install flask
+      fail: msg='Unimplemented task!'
+      ignore_errors: yes
+
+    # Make sure to use the deploy_directory variable!
+    - name: Create the deploy directory if it doesn't exist.
+      fail: msg='Unimplemented task!'
+      ignore_errors: yes
+
+    # This repository ships with 'files/flask/hello_world.py',
+    # a simple Flask application. Copy it to the deploy directory.
+    - name: Deploy flask app
+      fail: msg='Unimplemented task!'
+      ignore_errors: yes
+
+    # Normally, we'd deploy Flask with a process
+    # manager like supervisor. To keep this example
+    # basic, we'll just run it as a backgrounded
+    # process for now.
+
+    # To ensure playbook idempotency (ability to safely re-run),
+    # we need to kill existing Flask processes first.
+    - name: Kill all running flask processes.
+      shell: pkill -e flask
+      # pkill returns 1 when it doesn't find a process to kill.
+      # Setting `failed_when` to false will prevent that from
+      # being treated as a failure.
+      failed_when: false
+      # `shell` tasks aren't necessarily idempotent, so they'll always show
+      # as 'changed' in Ansible output. Setting `changed_when`
+      # lets you define what is considered to be a state change.
+      register: pkill
+      changed_when: "'killed' in pkill.stdout"
+
+    - name: Start flask as a backgrounded process
+      # We can set environment variables for a task to be run with.
+      environment:
+        FLASK_APP: "{{deploy_directory}}/hello_world.py"
+      # `nohup` and `&` combine to run flask as a backgrounded,
+      # unattached process.
+      shell: "nohup flask run -p {{nginx_upstream_port}} &"
+
+    # Install the packaged version of nginx with apt.
+    - name: Install nginx
+      fail: msg='Unimplemented task!'
+      ignore_errors: yes
+
+    # Template the nginx configuration file from `templates/proxy.j2`
+    # to the nginx `sites-available` directory in `/etc/nginx/`.
+    - name: Template nginx configuration file
+      fail: msg='Unimplemented task!'
+      ignore_errors: yes
+
+    # nginx uses symlinks from `/etc/nginx/sites-enabled` to the
+    # corresponding app in `/etc/nginx/sites-available`. Delete all
+    # symlinks so that nginx is only serving this Flask app.
+    - name: Disable all nginx sites
+      fail: msg='Unimplemented task!'
+      ignore_errors: yes
+
+    # Create a symlink in `/etc/nginx/sites-enabled` to enable
+    # this site.
+    - name: Enable this site
+      fail: msg='Unimplemented task!'
+      ignore_errors: yes
+
+    # The package installs nginx as a service, so you can
+    # use service or systemd commands to manage it.
+    - name: Reload nginx configuration
+      fail: msg='Unimplemented task!'
+      ignore_errors: yes
+
+    # Ansible commands process much faster than manual execution,
+    # so it's possible that nginx won't have bound to port 80 before
+    # we attempt to query the page.
+    - name: Wait for nginx to listen on port 80
+      wait_for:
+        port: "{{nginx_listen_port}}"
+        timeout: 10
+
+    - name: Ensure that is listening
+      uri:
+        url: http://localhost:{{nginx_listen_port}}
+        return_content: yes
+      # `register` saves the output to an Ansible variable.
+      register: html
+
+    # The `fail` module will stop a playbook with an error. The `when`
+    # condition will prevent the `fail` module from executing if the
+    # right 
+    - name: Make sure we're in the right class!
+      debug:
+        msg: "Application successfully deployed!"
+      failed_when: "'Deploying Applications With Ansible' not in html.content"
