@@ -1,0 +1,1 @@
+control_machine ansible_ssh_host=localhost ansible_connection=local

@@ -1,0 +1,12 @@
+upstream app {
+  server localhost:{{nginx_upstream_port}};
+}
+
+server {
+        listen {{nginx_listen_port}} default_server;
+        listen [::]:{{nginx_listen_port}} default_server;
+
+        location / {
+                proxy_pass http://app;
+        }
+}
