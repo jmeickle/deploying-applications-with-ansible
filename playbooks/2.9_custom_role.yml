@@ -1,0 +1,14 @@
+- hosts: localhost
+  roles:
+    # Custom modules embedded in roles become available after that
+    # role has been loaded.
+    - custom_role
+  tasks:
+    - name: Call my custom module
+      custom_module:
+        arg1: foo
+        arg2: bar
+      register: custom_module_output
+
+    - name: Print custom module output
+      debug: var=custom_module_output
