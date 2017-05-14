@@ -1,3 +1,5 @@
+# How to build a custom module in Ansible: http://docs.ansible.com/ansible/dev_guide/developing_modules_general.html
+
 - hosts: localhost
   roles:
     # Custom modules embedded in roles become available after that
@@ -5,7 +7,8 @@
     - custom_role
   tasks:
     - name: Call my custom module
-      custom_module:
+      # Or: create a file like custom_ruby_module.rb, custom_node_module.js, etc.
+      custom_python_module:
         arg1: foo
         arg2: bar
       register: custom_module_output

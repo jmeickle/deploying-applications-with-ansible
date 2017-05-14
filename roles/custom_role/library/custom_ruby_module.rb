@@ -1,0 +1,1 @@
+# See here: https://github.com/ansible/ansible-for-rubyists/blob/master/library/my_ruby_facts
