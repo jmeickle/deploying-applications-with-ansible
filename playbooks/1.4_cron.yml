@@ -1,0 +1,31 @@
+- hosts: control_machine
+
+  vars_prompt:
+    name: message
+    prompt: "Enter a message to send to all users on the system every minute."
+    private: no
+
+  tasks:
+    - name: Ensure that cron is started
+      become: yes
+      service:
+        name: cron
+        state: started
+
+    - name: Template a cron script
+      template:
+        src: ../templates/cron.sh.j2
+        dest: ~/cron.sh
+        mode: 0755
+
+    - name: Create a cron job
+      cron:
+        name: Message logged in users
+        job: ~/cron.sh
+      when: message != ""
+
+    - name: Delete a cron job
+      cron:
+        name: Message logged in users
+        state: absent
+      when: message == ""
