@@ -73,10 +73,10 @@ Day Two:
 
 Assuming this repository is checked out to `~/ansible`:
 
-`ansible.cfg`: Configuration file used when your current directory is ~/ansible
-`environments/aws`: Inventory directory selected via ~/ansible/ansible.cfg
-`playbooks`: Each YAML file is a playbook
-`roles`: Each folder is a role
-`roles/requirements.yml`: For installing roles with ansible-galaxy
-`files`: Static files used in playbooks
-`templates`: Jinja template files used in playbooks
+- `ansible.cfg`: Configuration file used when your current directory is ~/ansible
+- `environments/aws`: Inventory directory selected via ~/ansible/ansible.cfg
+- `playbooks`: Each YAML file is a playbook
+- `roles`: Each folder is a role
+- `roles/requirements.yml`: For installing roles with ansible-galaxy
+- `files`: Static files used in playbooks
+- `templates`: Jinja template files used in playbooks
