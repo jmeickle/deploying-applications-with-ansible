@@ -15,7 +15,7 @@
   # treated as variables. Playbooks are one of the many
   # locations you can define variables.
   vars:
-    deploy_directory: /home/vagrant/apps    
+    deploy_directory: ~/apps
     nginx_listen_port: 80
     nginx_upstream_port: 5000
   tasks:
@@ -58,10 +58,12 @@
     - name: Start flask as a backgrounded process
       # We can set environment variables for a task to be run with.
       environment:
-        FLASK_APP: "{{deploy_directory}}/hello_world.py"
+        FLASK_APP: "{{deploy_directory|expanduser}}/hello_world.py"
       # `nohup` and `&` combine to run flask as a backgrounded,
       # unattached process.
       shell: "nohup flask run -p {{nginx_upstream_port}} &"
+      register: flask
+      failed_when: "'does not appear to exist' in flask.stderr"
 
     # Install the packaged version of nginx with apt.
     - name: Install nginx
