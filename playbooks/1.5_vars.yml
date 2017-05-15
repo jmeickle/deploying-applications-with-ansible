@@ -1,0 +1,31 @@
+- hosts: control_machine
+  become: yes
+
+  vars:
+    # Default to a dev environment
+    env: dev
+    # Default to yum as a package manager
+    package_manager: yum
+
+  vars_prompt:
+    name: distro
+    prompt: Choose which distro to install
+    default: ubuntu
+
+  vars_files:
+    - "../vars/{{distro}}-{{env}}.yml"
+
+  tasks:
+    # This will run if you enter ubuntu at the prompt.
+    - apt:
+        name: git
+      when: package_manager == 'apt'
+
+    - yum:
+        name: git
+      when: package_manager == 'yum'
+
+# This variable won't be defined in the next play.
+- hosts: control_machine
+  tasks:
+    - debug: var=distro

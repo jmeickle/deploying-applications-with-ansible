@@ -1,0 +1,2 @@
+# Override package manager
+package_manager: apt
