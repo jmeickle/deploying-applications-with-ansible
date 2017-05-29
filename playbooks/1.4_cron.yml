@@ -1,29 +1,40 @@
+# control_machine is defined as an alias for localhost in
+# `environments/aws/hosts`.
 - hosts: control_machine
 
+  # vars_prompt will collect a variable and store it.
   vars_prompt:
     name: message
-    prompt: "Enter a message to send to all users on the system every minute."
+    prompt: "Enter a message to print via `wall`."
     private: no
 
+  # Tasks are executed in order.
   tasks:
+    # `service` requires running as root, so this task has the
+    # `become: yes` parameter.
     - name: Ensure that cron is started
       become: yes
       service:
         name: cron
         state: started
 
+    # This file is stored in the `templates` folder, adjacent to
+    # `playbooks`.
     - name: Template a cron script
       template:
         src: ../templates/cron.sh.j2
         dest: ~/cron.sh
         mode: 0755
 
+    # This task will only run if there's a non-blank message.
     - name: Create a cron job
       cron:
         name: Message logged in users
         job: ~/cron.sh
       when: message != ""
 
+    # This task will delete any cron job created by the previous task,
+    # if no message is provided.
     - name: Delete a cron job
       cron:
         name: Message logged in users
