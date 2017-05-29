@@ -13,7 +13,7 @@
     nginx_listen_port: 80
     nginx_upstream_port: 5000
 
-  # Roles are executed before tasks.
+  # `roles:` are executed in order, before `tasks:`.
   roles:
     - role: flask_example
       tags: [flask]
