@@ -11,7 +11,7 @@
 #
 #   http://docs.ansible.com/ansible/list_of_all_modules.html
 #
-# If you get stuck, you can check out 1.8_webapp.yml for a completed
+# If you get stuck, you can check out 1.6_webapp_example.yml for a completed
 # version of this playbook.
 
 # This will deploy a web app locally rather than to another server.
