@@ -1,0 +1,21 @@
+- hosts: tag_Course_deploying_applications_with_ansible
+  gather_facts: no
+  serial: 10%
+
+  vars: 
+    password_file: ~/ansible_infrastructure/passwords.csv
+
+  tasks:
+    # This is a workaround for supporting a combination of EC2 dynamic
+    # inventory at the same time as  password authentication from a flat file.
+    - set_fact:
+        ansible_ssh_user: "{{ ec2_tag_User }}"
+        ansible_ssh_pass: "{{ lookup('csvfile', ec2_tag_User+' file='+password_file|expanduser+' delimiter=,') }}"
+
+    # Send a messaage via wall
+    - name: Say hi to everyone
+      shell: >
+        wall "Hi again, {{ ansible_ssh_user }}! You're in the same
+        serial batch as {{ ansible_play_batch[:1]|join(', ') }}, and
+        {{ ansible_play_batch[-1] }}."
+      ignore_errors: yes

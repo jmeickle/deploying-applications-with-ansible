@@ -1,0 +1,24 @@
+- hosts: tag_Course_deploying_applications_with_ansible
+  gather_facts: no
+
+  vars:
+    password_file: ~/ansible_infrastructure/passwords.csv
+
+  tasks:
+    # This is a workaround for supporting a combination of EC2 dynamic
+    # inventory at the same time as  password authentication from a flat file.
+    - set_fact:
+        ansible_ssh_user: "{{ ec2_tag_User }}"
+        ansible_ssh_pass: "{{ lookup('csvfile', ec2_tag_User+' file='+password_file|expanduser+' delimiter=,') }}"
+
+    - name: Collect modified files
+      shell: >
+        cd ~/ansible
+        && git diff --shortstat
+        | cut -d ' ' -f 2
+      register: playbook_progress
+
+    - name: Report modified files
+      delegate_to: control_machine
+      shell:
+        echo "{{ ansible_ssh_user }},{{ playbook_progress.stdout or '0' }}" >> ~/ansible/student_instances
