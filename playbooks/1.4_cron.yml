@@ -5,7 +5,7 @@
   # vars_prompt will collect a variable and store it.
   vars_prompt:
     name: message
-    prompt: "Enter a message to print via `wall`."
+    prompt: "Enter a message to print via `wall` (leave blank to delete crontab)"
     private: no
 
   # Tasks are executed in order.
