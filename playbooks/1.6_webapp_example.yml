@@ -1,4 +1,4 @@
-# This is a role-based version of the playbook from 1.6_webapp.yml; if you
+# This is the complete version of the playbook from 1.6_webapp.yml; if you
 # run into issues completing section 1.8, you can use it as inspiration.
 
 # This will deploy a web app locally rather than to another server.
@@ -13,16 +13,66 @@
     nginx_listen_port: 80
     nginx_upstream_port: 5000
 
-  # Roles are executed before tasks.
-  roles:
-    - role: flask_example
-      tags: [flask]
-      # Variables can be passed into a role
-      flask_app: ../files/hello_world/hello_world.py
-      flask_directory: "{{ deploy_directory }}"
-      flask_port: "{{nginx_upstream_port }}"
-
   tasks:
+    # Flask is a Python web server, installed as a
+    # Python package. Check out the `pip` module - and
+    # remember, we need to run it as root.
+    - name: Install flask
+      become: yes
+      pip:
+        name: flask
+
+    # We can create directories with the `file` module. Make
+    # sure to use the deploy_directory variable!
+    - name: Create the deploy directory if it doesn't exist.
+      file:
+        path: "{{ deploy_directory }}"
+        state: directory
+
+    # This repository ships with 'files/hello_world/hello_world.py',
+    # a simple Flask application. Copy it to the deploy directory
+    # with the `copy` module.
+    - name: Deploy flask app
+      copy:
+        src: "../files/hello_world/hello_world.py"
+        dest: "{{ deploy_directory }}/hello_world.py"
+
+    # Normally, we'd deploy Flask with a process
+    # manager like supervisor. To keep this example
+    # basic, we'll just run it as a backgrounded
+    # process for now.
+
+    # To ensure playbook idempotency (ability to safely re-run),
+    # we need to kill existing Flask processes before starting
+    # a new one. Otherwise we'd fail to bind to the right port.
+    - name: Kill all running flask processes.
+      shell: pkill -e flask
+      # pkill returns 1 when it doesn't find a process to kill.
+      # Setting `failed_when` to false will prevent that from
+      # being treated as a failure.
+      failed_when: false
+      # `shell` tasks aren't necessarily idempotent, so they'll always
+      # show as 'changed' in Ansible output. Setting `changed_when`
+      # lets us define what is considered to be a state change.
+      register: pkill
+      changed_when: "'killed' in pkill.stdout"
+
+    - name: Start flask as a backgrounded process
+      # We can set environment variables for a task to be run with.
+      environment:
+        FLASK_APP: "{{deploy_directory|expanduser}}/hello_world.py"
+      # When we run Flask, it attaches to our terminal. When we run
+      # a shell command with Ansible, it operates much like it would
+      # if we ran it as our user, so this task wouldn't complete
+      # until the Flask process died. We can use the `nohup` command
+      # and the `&` operator to
+      # run Flask as a backgrounded, unattached process.
+      shell: "nohup flask run -p {{nginx_upstream_port}} &"
+      # We do still get stderr before the process returns, and we can
+      # inspect that for an error message.
+      register: flask
+      failed_when: "'does not appear to exist' in flask.stderr"
+
     # Install the packaged version of nginx with the `apt` module.
     # Like other package managers, we'll want to run this command as
     # root by using `become: yes`.
