@@ -1,0 +1,68 @@
+- name: Demonstrate handler execution order
+  hosts: control_machine
+
+  handlers:
+    # This handler will never be notified because only the first defined
+    # handler with given a name will be notified. Both roles define a
+    # handler with this name, and role handlers are defined before
+    # play handlers.
+    - name: handler_a
+      debug:
+        msg: handler_a from playbook
+
+    # This handler will still be notified because neither role defined
+    # it before the play could. However, it will execute after any
+    # handlers notified during plays. 
+    - name: c_handler
+      debug:
+        msg: c_handler from playbook
+      changed_when: yes
+      # This list of handlers will be notified even if they already ran
+      # in the task that c_handler was notified from.
+      notify:
+        # This handler will run second because a was defined before b.
+        - handler_b
+        # This handler will run first despite being listed second.
+        - handler_a
+        # This one won't run at all.
+        - handler_a
+
+  pre_tasks:
+  
+    - name: Notify handler_a
+      debug: msg=notified
+      changed_when: yes
+      notify: handler_a
+
+  # The play's handler_a will run after pre_tasks but before roles.
+
+  # These roles only define handlers; they don't perform tasks or notify.
+  roles:
+    # role_b's handlers will be notified because it appeared first in the list.
+    - handler_example_b
+    - handler_example_a
+
+  # No handlers run between roles and tasks.
+
+  tasks:
+    # This task will notify the role_a's handler_a because tasks run after roles.
+    - name: Notify handler_a
+      debug: msg=notified
+      changed_when: yes
+      notify: handler_a
+
+    # This will notify handler_a and handler_b from the role, not the play.
+    - name: Notify all handlers
+      debug: msg=notified
+      changed_when: yes
+      notify:
+        # c_handler will execute last, even though it was listed first.
+        - c_handler
+        - handler_a
+        - handler_b
+
+
+
+
+
+
