@@ -12,6 +12,6 @@
 
 - name: Deploy flask app
   copy:
-    src: "{{ flask_app }}"
-    dest: "{{ flask_directory }}/hello_world.py"
+    src: "{{ flask_src }}"
+    dest: "{{ flask_directory }}/{{flask_app}}.py"
   notify: restart flask

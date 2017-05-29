@@ -1,0 +1,39 @@
+- name: Install supervisor
+  become: yes
+  apt:
+    name: supervisor
+  # If the flask version ever updates, this will force a restart.
+  notify: restart supervisor
+
+- name: Template supervisor config
+  become: yes
+  template:
+    src: flask.conf.j2
+    dest: /etc/supervisor/conf.d/flask.conf
+  # We need to restart the whole process if we changed supervisor config
+  notify: restart supervisor
+
+- name: Install flask
+  become: yes
+  pip:
+    name: flask
+  # If the flask version ever updates, this will force a restart.
+  notify: restart flask
+
+- name: Create the deploy directory if it doesn't exist.
+  file:
+    path: "{{ flask_directory }}"
+    state: directory
+
+- name: Deploy flask app
+  copy:
+    src: "{{ flask_src }}"
+    dest: "{{ flask_directory }}/{{flask_app}}.py"
+  notify: restart flask
+
+- name: Template flask service
+  template:
+    src: flask.sh.j2
+    dest: "{{ flask_directory }}/{{flask_app}}.sh"
+    mode: 0755
+  notify: restart flask

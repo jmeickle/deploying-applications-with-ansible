@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# This doesn't get set with supervisor.
+export HOME=/home/vagrant
+
+# Load a Python version that has Flask
+. /home/vagrant/.setup_pyenv
+
+# Load our user's virtualenv
+pyenv activate ansible
+
+# Set the Flask app
+export FLASK_APP="{{flask_directory|expanduser}}/{{flask_app}}.py"
+
+# We now do want this to block, since supervisor expects the process
+# to attach so it can be properly managed.
+flask run -p {{flask_port}}

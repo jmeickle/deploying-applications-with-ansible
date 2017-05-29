@@ -1,0 +1,37 @@
+# We need to restart supervisor itself when we add new config.
+
+- name: restart supervisor
+  become: yes
+  service:
+    name: supervisor
+    state: restarted
+
+- name: start supervisor
+  become: yes
+  service:
+    name: supervisor
+    state: restarted
+
+- name: stop supervisor
+  become: yes
+  service:
+    name: supervisor
+    state: restarted    
+
+- name: restart flask
+  become: yes
+  supervisorctl:
+    name: "{{ flask_app }}"
+    state: restarted
+
+- name: start flask
+  become: yes
+  supervisorctl:
+    name: "{{ flask_app }}"
+    state: started
+
+- name: stop flask
+  become: yes
+  supervisorctl:
+    name: "{{ flask_app }}"
+    state: stopped

@@ -1,3 +1,11 @@
+# This is an example of what your 1.6_webapp.yml playbook should look
+# like after completing the tasks described in 1.10:
+
+# - Install nginx, Redis, and supervisord via roles
+# - Write a custom role to manage Flask with supervisord
+# - Persist number of visits in Redis
+# - Increment and display visits to user
+
 # This is a role-based version of the playbook from 1.6_webapp.yml; if you
 # run into issues completing section 1.8, you can use it as inspiration.
 
@@ -15,44 +23,39 @@
 
   # Roles are executed before tasks.
   roles:
-    - role: flask_example
+    # This is a different Flask role that uses supervisor.
+    - role: flask_supervisor_example
       tags: [flask]
       # Variables can be passed into a role
-      flask_app: "hello_world"
-      flask_src: ../files/hello_world/hello_world.py
+      flask_app: "flask-redis"
+      flask_src: ../files/flask-redis/flask-redis.py
       flask_directory: "{{ deploy_directory|expanduser }}"
       flask_port: "{{nginx_upstream_port }}"
 
+    - { role: nginx_example, tags: [nginx] }
+
+    - { role: redis_example, tags: [redis] }
+
   tasks:
-    # Install the packaged version of nginx with the `apt` module.
-    # Like other package managers, we'll want to run this command as
-    # root by using `become: yes`.
-    - name: Install nginx
+    # This is a great example of a task that doesn't belong in either
+    # the Flask role or the Redis role, because it only matters to the
+    # intersection of them.
+    - name: Install flask-redis
       become: yes
-      apt:
-        name: nginx
+      pip:
+        name: flask-redis
+      notify: restart flask
 
-    # (We'll need to be root for the following nginx tasks, too!)
-
-    # Use the `template` module to template the configuration file
-    # from `templates/proxy.j2` to `/etc/nginx/sites-available`. 
+    # It's common to use a role to install 'basic' configuration (and
+    # provide handlers), but then override that configuration in the
+    # `tasks:` section of the role.
     - name: Template nginx configuration file
       become: yes
       template:
         src: ../templates/proxy.j2
         dest: /etc/nginx/sites-available/proxy
-
-    # nginx loads configuration files from `/etc/nginx/sites-enabled`,
-    # which are traditionally symlinks to files in
-    # `/etc/nginx/sites-available`. Use the `file` module to delete
-    # all symlinks so that nginx is only serving this Flask app.
-    # (HINT: Try out `with_fileglob: /etc/nginx/sites-enabled/*`)
-    - name: Disable all nginx sites
-      become: yes
-      file:
-        state: absent
-        path: "{{ item }}"
-      with_fileglob: /etc/nginx/sites-enabled/*
+      # The nginx handler is available because we included the role.
+      notify: reload nginx
 
     # Create a symlink in `/etc/nginx/sites-enabled` pointing to the
     # file we previously templated into `/etc/nginx/sites-available`.
@@ -62,15 +65,11 @@
         state: link
         src: /etc/nginx/sites-available/proxy
         dest: /etc/nginx/sites-enabled/proxy
+      notify: reload nginx
 
-    # The nginx package installs it as a service, so we can use the
-    # `service` or `systemd` commands to manage it.
-    - name: Reload nginx configuration
-      become: yes
-      service:
-        name: nginx
-        state: reloaded
-
+  # Role handlers won't be executed until the end of the `tasks:`
+  # section, so we need to move these into `post_tasks` instead.
+  post_tasks:
     # Ansible commands process much faster than manual execution, so
     # it's possible that nginx won't have bound to port 80 before we
     # attempt to query the server.
