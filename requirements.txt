@@ -29,6 +29,7 @@ pycrypto==2.6.1
 pyparsing==2.2.0
 python-dateutil==2.6.0
 PyYAML==3.12
+redis==2.10.5
 rsa==3.4.2
 s3transfer==0.1.10
 six==1.10.0
