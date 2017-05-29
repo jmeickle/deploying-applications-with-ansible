@@ -1,0 +1,5 @@
+- name: Install redis
+  become: yes
+  apt:
+    name: redis-server
+  notify: restart redis

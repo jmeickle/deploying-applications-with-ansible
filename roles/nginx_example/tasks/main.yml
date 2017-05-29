@@ -1,0 +1,14 @@
+- name: Install nginx
+  become: yes
+  apt:
+    name: nginx
+  # This will force a restart on package upgrade.
+  notify: restart nginx
+
+- name: Disable all nginx sites
+  become: yes
+  file:
+    state: absent
+    path: "{{ item }}"
+  with_fileglob: /etc/nginx/sites-enabled/*
+  notify: reload nginx

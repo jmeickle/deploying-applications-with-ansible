@@ -81,7 +81,10 @@
       # We do still get stderr before the process returns, and we can
       # inspect that for an error message.
       register: flask
-      failed_when: "'does not appear to exist' in flask.stderr"
+      # This is a form of YAML multiline syntax.
+      failed_when: >
+        'does not appear to exist' in flask.stderr
+        or 'Traceback' in flask.stderr
 
     # Install the packaged version of nginx with the `apt` module.
     # Like other package managers, we'll want to run this command as

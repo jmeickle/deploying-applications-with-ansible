@@ -1,0 +1,6 @@
+[program:{{flask_app}}]
+# Run as our user
+user={{ ansible_user_id }}
+
+# Run the templated script
+command={{ flask_directory }}/{{flask_app}}.sh

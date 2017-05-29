@@ -27,7 +27,7 @@
 - name: start flask
   # We can set environment variables for a task to be run with.
   environment:
-    FLASK_APP: "{{flask_directory|expanduser}}/hello_world.py"
+    FLASK_APP: "{{flask_directory|expanduser}}/{{flask_app}}.py"
   # When we run Flask, it attaches to our terminal. When we run
   # a shell command with Ansible, it operates much like it would
   # if we ran it as our user, so this task wouldn't complete
@@ -38,4 +38,6 @@
   # We do still get stderr before the process returns, and we can
   # inspect that for an error message.
   register: flask
-  failed_when: "'does not appear to exist' in flask.stderr"
+  failed_when: >
+    'does not appear to exist' in flask.stderr
+    or 'Traceback' in flask.stderr
