@@ -67,7 +67,7 @@
         dest: /etc/nginx/sites-enabled/proxy
       notify: reload nginx
 
-  # Role handlers won't be executed until the end of the `tasks:`
+  # Handlers won't be executed until the end of the `tasks:`
   # section, so we need to move these into `post_tasks` instead.
   post_tasks:
     # Ansible commands process much faster than manual execution, so
