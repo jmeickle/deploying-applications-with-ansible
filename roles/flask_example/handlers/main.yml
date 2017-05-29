@@ -1,0 +1,41 @@
+
+# This handler always marks itself as changed, then notifies two
+# other handlers.
+- name: restart flask
+  debug: msg="Notifying Flask start and stop handlers..."
+  changed_when: true
+  notify:
+    - stop flask
+    - start flask
+
+# To ensure playbook idempotency (ability to safely re-run),
+# we need to kill existing Flask processes before starting
+# a new one. Otherwise we'd fail to bind to the right port.
+
+- name: stop flask
+  shell: pkill -e flask
+  # pkill returns 1 when it doesn't find a process to kill.
+  # Setting `failed_when` to false will prevent that from
+  # being treated as a failure.
+  failed_when: false
+  # `shell` tasks aren't necessarily idempotent, so they'll always
+  # show as 'changed' in Ansible output. Setting `changed_when`
+  # lets us define what is considered to be a state change.
+  register: pkill
+  changed_when: "'killed' in pkill.stdout"
+
+- name: start flask
+  # We can set environment variables for a task to be run with.
+  environment:
+    FLASK_APP: "{{flask_directory|expanduser}}/hello_world.py"
+  # When we run Flask, it attaches to our terminal. When we run
+  # a shell command with Ansible, it operates much like it would
+  # if we ran it as our user, so this task wouldn't complete
+  # until the Flask process died. We can use the `nohup` command
+  # and the `&` operator to
+  # run Flask as a backgrounded, unattached process.
+  shell: "nohup flask run -p {{flask_port}} &"
+  # We do still get stderr before the process returns, and we can
+  # inspect that for an error message.
+  register: flask
+  failed_when: "'does not appear to exist' in flask.stderr"

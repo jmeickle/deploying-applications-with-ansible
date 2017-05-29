@@ -1,0 +1,17 @@
+- name: Install flask
+  become: yes
+  pip:
+    name: flask
+  # If the flask version ever updates, this will force a restart.
+  notify: restart flask
+
+- name: Create the deploy directory if it doesn't exist.
+  file:
+    path: "{{ flask_directory }}"
+    state: directory
+
+- name: Deploy flask app
+  copy:
+    src: "{{ flask_app }}"
+    dest: "{{ flask_directory }}/hello_world.py"
+  notify: restart flask
