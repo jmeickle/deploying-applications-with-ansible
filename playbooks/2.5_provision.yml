@@ -39,6 +39,9 @@
 
   tasks:    
     - name: Install enough Python 2 to connect
+      raw: sudo apt-get update
+
+    - name: Install enough Python 2 to connect
       raw: sudo apt-get -y install python-simplejson
 
     - name: Gather facts
