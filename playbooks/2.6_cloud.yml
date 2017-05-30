@@ -1,0 +1,44 @@
+# The final deployment project of the course - coordinate two or more
+# servers into a multi tier application using Ansible tasks and roles!
+
+# To get you started, here's a sample playbook detailing what your
+# two instances should end up looking like. But feel free to use
+# technologies that you're more familiar with, look to Ansible Galaxy
+# for inspiration, or just extend the playbooks from Day 1.
+
+# You may need to terminate existing processes. If you run into memory
+# issues on your provisioned node, you can modify ec2.yml and try out
+# a t2.small instead of a t2.micro. (You can't relaunch your control
+# machine that contains this repository.)
+
+# Make sure to use tags based on what you added in the last playbook.
+- hosts: "tag_User_{{username}}:&tag_Name_Provisioned"
+  vars_files:
+    - ~/ec2.yml
+    # Create this file and store configuration in it.
+    - ~/app.yml
+
+  roles:
+    # - Install a database
+
+  tasks:
+    # - name: Create a database table
+
+    # - name: Populate entries in the database
+
+- hosts: localhost
+  vars_files:
+    - ~/ec2.yml
+    # Create this file and store configuration in it.
+    - ~/app.yml
+
+  roles:
+    # - Install a webserver
+    # - Install an app server
+
+  tasks:
+  #   - name: Customize webserver configuration
+
+  #   - name: Deploy your app server's code
+
+  #   - name: Install database drivers
