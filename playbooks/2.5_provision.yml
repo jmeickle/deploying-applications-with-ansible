@@ -63,5 +63,5 @@
         state: present
         # You can change these tags! But you'll need them in future steps.
         tags:
-          Name: Created Instance
+          Name: Provisioned
           User: "{{ username }}"

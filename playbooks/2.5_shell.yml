@@ -1,0 +1,25 @@
+# You'll need to uncomment the line in your ansible.cfg that loads the dynamic
+# inventory. Otherwise, this script won't work!
+
+# Make sure to use tags based on what you added in the last playbook.
+- hosts: "tag_User_{{username}}&tag_Name_Provisioned"
+  gather_facts: no
+  vars_files:
+    - ~/ec2.yml
+
+  tasks:
+    - ec2_facts:
+
+    - name: Retrieve all tags on an instance
+      delegate_to: localhost
+      ec2_tag:
+        region: '{{ ansible_ec2_placement_region }}'
+        resource: '{{ ansible_ec2_instance_id }}'
+        state: list
+      register: ec2_tags
+
+    - debug: var=ec2_tags
+
+   # Send a messaage via wall
+    - name: Say hi to everyone
+      shell: wall "Hello, World!"
