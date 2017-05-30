@@ -60,4 +60,4 @@
         state: present
         tags:
           Name: Created Instance
-          User: "{{ ansible_user_id }}"
+          User: "{{ username }}"
