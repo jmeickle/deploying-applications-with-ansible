@@ -1,0 +1,5 @@
+- name: handler_b
+  debug: msg="handler_b from handler_example_b"
+
+- name: handler_a
+  debug: msg="handler_a from handler_example_b"
