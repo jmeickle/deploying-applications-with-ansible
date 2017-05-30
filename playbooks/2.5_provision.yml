@@ -1,0 +1,51 @@
+# Provision a second instance based on configuration parameters in ~/ec2.yml
+- name: Provision a new instance
+  hosts: control_machine
+  gather_facts: False
+  vars_files:
+    - ~/ec2.yml
+
+  tasks:
+    - name: Launch instance
+      ec2:
+         region: "{{ region }}"
+         instance_type: "{{ instance_type }}"
+         image: "{{ image }}"
+         key_name: "{{ key_name }}"
+         group: "{{ security_group }}"
+         wait: true
+      register: ec2
+
+    - name: Add new instances to host group
+      add_host:
+        hostname: "{{ item.public_dns_name }}"
+        groupname: launched
+      with_items: "{{ ec2.instances }}"
+
+    - name: Wait for SSH to come up
+      wait_for:
+        host: "{{ item.public_dns_name }}"
+        port: 22
+        timeout: 320
+        state: started
+      with_items: "{{ ec2.instances }}"
+
+- name: Apply instance modifications
+  hosts: launched
+  strategy: free
+  vars_files:
+    - ~/ec2.yml
+
+  tasks:    
+    - name: Get updated EC2 facts
+      action: ec2_facts
+
+    - name: Tag instances
+      delegate_to: localhost
+      ec2_tag:
+        region: "{{ region }}"
+        resource: "{{ ansible_ec2_instance_id }}"
+        state: present
+        tags:
+          Name: Created Instance
+          User: "{{ ansible_user_id }}"
