@@ -2,7 +2,7 @@
 # inventory. Otherwise, this script won't work!
 
 # Make sure to use tags based on what you added in the last playbook.
-- hosts: "tag_User_{{username}}&tag_Name_Provisioned"
+- hosts: "tag_User_{{username}}:&tag_Name_Provisioned"
   gather_facts: no
   vars_files:
     - ~/ec2.yml
@@ -20,6 +20,6 @@
 
     - debug: var=ec2_tags
 
-   # Send a messaage via wall
+   # Send a message via wall
     - name: Say hi to everyone
       shell: wall "Hello, World!"
