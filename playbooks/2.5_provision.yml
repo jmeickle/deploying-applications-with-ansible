@@ -1,6 +1,6 @@
 # Provision a second instance based on configuration parameters in ~/ec2.yml
 - name: Provision a new instance
-  hosts: control_machine
+  hosts: localhost
   gather_facts: False
   vars_files:
     - ~/ec2.yml
