@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # This doesn't get set with supervisor.
-export HOME=/home/vagrant
+export HOME=/home/{{ ansible_user_id }}
 
 # Load a Python version that has Flask
-. /home/vagrant/.setup_pyenv
+. /home/{{ ansible_user_id }}/.setup_pyenv
 
 # Load our user's virtualenv
 pyenv activate ansible
