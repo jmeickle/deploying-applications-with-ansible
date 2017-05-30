@@ -32,6 +32,7 @@
 
 - name: Apply instance modifications
   hosts: launched
+  gather_facts: False
   strategy: free
   vars_files:
     - ~/ec2.yml
