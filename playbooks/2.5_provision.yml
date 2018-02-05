@@ -13,7 +13,7 @@
          image: "{{ image }}"
          key_name: "{{ key_name }}"
          group: "{{ security_group }}"
-         tags:
+         instance_tags:
            Course: "{{ course_slug }}"
          wait: true
       register: ec2
