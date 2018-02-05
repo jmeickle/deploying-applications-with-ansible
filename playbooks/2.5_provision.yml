@@ -42,14 +42,13 @@
   tasks:
     # NOTE: These tasks might fail if apt is flaky!
     - name: Install python2 for Ansible
-      raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
+      raw: bash -c "test -e /usr/bin/python || (sudo apt -qqy update && sudo apt install -qqy python-minimal)"
       register: output
       changed_when:
         - output.stdout != ""
         - output.stdout != "\r\n"
-      until: output|changed
+      until: output|success
       retries: 5
-      ignore_errors: yes
 
     - name: Gather facts
       action: setup
