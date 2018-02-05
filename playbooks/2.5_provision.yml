@@ -65,4 +65,4 @@
         # You can change these tags! But you'll need them in future steps.
         tags:
           Name: Provisioned
-          User: "{{ username }}"
+          User: "{{ course_username }}"
