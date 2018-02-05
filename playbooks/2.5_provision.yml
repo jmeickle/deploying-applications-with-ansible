@@ -38,17 +38,16 @@
     - ~/ec2.yml
 
   tasks:
-
     # NOTE: These tasks might fail if apt is flaky!
-    - name: Install enough Python 2 to connect
-      raw: sudo apt-get update
-      register: task_result
-      until: task_result.rc == 0
+    - name: Install python2 for Ansible
+      raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
+      register: output
+      changed_when:
+        - output.stdout != ""
+        - output.stdout != "\r\n"
+      until: output|changed
       retries: 5
       ignore_errors: yes
-
-    - name: Install enough Python 2 to connect
-      raw: sudo apt-get -y install python-minimal
 
     - name: Gather facts
       action: setup
